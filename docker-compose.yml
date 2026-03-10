@@ -1,0 +1,54 @@
+services:
+  certificate-service:
+    build:
+      context: ./certificate-service
+      dockerfile: Dockerfile
+    image: certificate-service:latest
+    container_name: cert-manager-backend
+
+    ports:
+      - "3001:3001"
+
+    environment:
+      RUST_LOG: info,certificate_service=debug
+      APP_PORT: "3001"
+      DATABASE_URL: ${DATABASE_URL:-postgresql://postgres.frtobmodvfwzhlwetxby:Ashokasingh214@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres}
+
+    networks:
+      - app-network
+
+  certificate-manager:
+    image: node:24-alpine
+    container_name: cert-manager-frontend
+    working_dir: /app
+
+    volumes:
+      - ./certificate-manager:/app
+      - /app/node_modules
+
+    ports:
+      - "3000:3000"
+
+    environment:
+      NODE_ENV: development
+      # Server-side (SSR) calls from container use service hostname
+      CERTIFICATE_SERVICE_URL: http://certificate-service:3001
+      # Browser calls from host use localhost
+      NEXT_PUBLIC_CERTIFICATE_SERVICE_URL: http://localhost:3001
+      CERTIFICATE_SERVICE_ALLOW_SELF_SIGNED: "false"
+
+    command: sh -c "npm install && npm run dev"
+
+    depends_on:
+      - certificate-service
+
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  cargo-cache:
+  target-cache:

@@ -1,0 +1,1 @@
+pub mod certificate_repository_abstract;
