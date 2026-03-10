@@ -2,7 +2,10 @@ name: Deploy Frontend to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -10,25 +13,25 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Install Node
-        uses: actions/setup-node@v3
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 18
 
       - name: Install dependencies
-        run: |
-          cd certificate-manager
-          npm install
+        working-directory: certificate-manager
+        run: npm install
 
       - name: Build Next.js
-        run: |
-          cd certificate-manager
-          npm install
-          npm run build
+        working-directory: certificate-manager
+        run: npm run build
 
-      - name: Deploy
+      - name: Check build output
+        run: ls certificate-manager/out
+
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
