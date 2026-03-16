@@ -2,37 +2,47 @@ name: Deploy Frontend to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 permissions:
   contents: write
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
+          cache: npm
+          cache-dependency-path: certificate-manager/package-lock.json
 
       - name: Install dependencies
         working-directory: certificate-manager
         run: npm install
 
-      - name: Build Next.js
+      - name: Build Next.js project
         working-directory: certificate-manager
-        run: npm run build
+        env:
+          NEXT_PUBLIC_CERTIFICATE_SERVICE_URL: ${{ vars.NEXT_PUBLIC_CERTIFICATE_SERVICE_URL }}
+          CERTIFICATE_SERVICE_URL: ${{ vars.CERTIFICATE_SERVICE_URL }}
+          CERTIFICATE_SERVICE_ALLOW_SELF_SIGNED: ${{ vars.CERTIFICATE_SERVICE_ALLOW_SELF_SIGNED }}
+        run: |
+          npm run build
+          npm run export
 
-      - name: Check build output
-        run: ls certificate-manager/out
+      - name: Verify static build output
+        run: ls -la certificate-manager/out
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: certificate-manager/out
+          publish_branch: gh-pages
