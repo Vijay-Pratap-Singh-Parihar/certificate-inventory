@@ -9,7 +9,7 @@
  * - Local dev (non-Docker): defaults to http://localhost:3001
  */
 
-const DEFAULT_BASE = "http://localhost:3001";
+const DEFAULT_BASE = "https://certificate-inventory.onrender.com";
 
 /** True if the value is a valid absolute API base URL (avoids relative URLs on GitHub Pages). */
 function isAbsoluteBaseUrl(value: string | undefined): boolean {

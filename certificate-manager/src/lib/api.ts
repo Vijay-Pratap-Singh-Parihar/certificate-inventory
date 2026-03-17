@@ -9,7 +9,7 @@ import { apiFetch, ApiError } from "./fetcher";
 
 /** Backend API base URL (e.g. https://certificate-inventory.onrender.com). Set NEXT_PUBLIC_CERTIFICATE_SERVICE_URL at build time for static export. */
 export const API_BASE =
-  process.env.NEXT_PUBLIC_CERTIFICATE_SERVICE_URL ?? "http://localhost:3001";
+  process.env.NEXT_PUBLIC_CERTIFICATE_SERVICE_URL ?? "https://certificate-inventory.onrender.com";
 
 export { apiFetch, ApiError } from "./fetcher";
 
