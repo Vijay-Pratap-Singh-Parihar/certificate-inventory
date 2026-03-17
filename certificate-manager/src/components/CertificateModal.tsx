@@ -4,8 +4,7 @@ import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import type { Certificate } from "@/types/certificate";
 import { getCertificateStatus } from "@/types/certificate";
-import { getCertificatePem } from "@/lib/api";
-import { ApiError } from "@/lib/fetcher";
+import { getCertificatePem, ApiError } from "@/lib/api";
 
 type CertificateModalProps = {
   certificate: Certificate | null;

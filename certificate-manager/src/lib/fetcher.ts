@@ -11,16 +11,22 @@
 
 const DEFAULT_BASE = "http://localhost:3001";
 
-/** Resolved API base URL: server prefers CERTIFICATE_SERVICE_URL so Docker uses service hostname. */
+/** True if the value is a valid absolute API base URL (avoids relative URLs on GitHub Pages). */
+function isAbsoluteBaseUrl(value: string | undefined): boolean {
+  return Boolean(value && (value.startsWith("http://") || value.startsWith("https://")));
+}
+
+/** Resolved API base URL. Never returns a relative path so requests always hit the backend on static export (e.g. GitHub Pages). */
 function getBaseUrl(): string {
   if (typeof window !== "undefined") {
-    return process.env.NEXT_PUBLIC_CERTIFICATE_SERVICE_URL ?? DEFAULT_BASE;
+    const base = process.env.NEXT_PUBLIC_CERTIFICATE_SERVICE_URL ?? DEFAULT_BASE;
+    return isAbsoluteBaseUrl(base) ? base : DEFAULT_BASE;
   }
-  const API_BASE_URL =
+  const base =
     process.env.CERTIFICATE_SERVICE_URL ||
     process.env.NEXT_PUBLIC_CERTIFICATE_SERVICE_URL ||
     DEFAULT_BASE;
-  return API_BASE_URL;
+  return isAbsoluteBaseUrl(base) ? base : DEFAULT_BASE;
 }
 
 export type FetcherOptions = RequestInit & {
@@ -38,7 +44,10 @@ export async function apiFetch<T = unknown>(
 ): Promise<T> {
   const { allowSelfSigned, ...init } = options;
   const base = getBaseUrl();
-  const url = path.startsWith("http") ? path : `${base.replace(/\/$/, "")}${path.startsWith("/") ? path : `/${path}`}`;
+  // Ensure we never build a relative URL (e.g. when basePath is set on GitHub Pages).
+  const baseUrl = base.replace(/\/$/, "");
+  const pathPart = path.startsWith("/") ? path : `/${path}`;
+  const url = path.startsWith("http") ? path : `${baseUrl}${pathPart}`;
 
   let fetchOptions: RequestInit = {
     ...init,

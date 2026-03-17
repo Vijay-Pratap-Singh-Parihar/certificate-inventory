@@ -1,10 +1,17 @@
 /**
  * API client for @certificate-service.
+ * All API calls use NEXT_PUBLIC_CERTIFICATE_SERVICE_URL so the static export (e.g. GitHub Pages with basePath) hits the backend, not relative paths.
  * List/metrics endpoints may be added to the backend; until then, list returns empty and metrics zeros.
  */
 
 import type { Certificate, DashboardMetrics, PaginatedResponse } from "@/types/certificate";
 import { apiFetch, ApiError } from "./fetcher";
+
+/** Backend API base URL (e.g. https://certificate-inventory.onrender.com). Set NEXT_PUBLIC_CERTIFICATE_SERVICE_URL at build time for static export. */
+export const API_BASE =
+  process.env.NEXT_PUBLIC_CERTIFICATE_SERVICE_URL ?? "http://localhost:3001";
+
+export { apiFetch, ApiError } from "./fetcher";
 
 const ALLOW_SELF_SIGNED = process.env.NODE_ENV === "development" && process.env.CERTIFICATE_SERVICE_ALLOW_SELF_SIGNED === "true";
 
